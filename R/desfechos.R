@@ -57,8 +57,23 @@ filtrar_processos <- function(brutos, classe_alvo = 7L, desde = as.Date("2022-01
     distinct(numeroProcesso, .keep_all = TRUE)
 }
 
+# Só código e data de cada movimento; datajud::extract_movements() fica lento
+# com dezenas de milhares de processos
+extrair_movimentos <- function(processos) {
+  tibble(
+    numeroProcesso = processos$numeroProcesso,
+    movimentos = processos$movimentos
+  ) |>
+    mutate(
+      movimento_codigo = map(movimentos, \(m) vapply(m, \(x) as.integer(x$codigo %||% NA), integer(1))),
+      movimento_data = map(movimentos, \(m) vapply(m, \(x) as.character(x$dataHora %||% NA), character(1)))
+    ) |>
+    select(-movimentos) |>
+    unnest(c(movimento_codigo, movimento_data))
+}
+
 construir_eventos <- function(processos) {
-  movimentos <- extract_movements(processos) |>
+  movimentos <- extrair_movimentos(processos) |>
     mutate(data = as.Date(parse_datajud_date(movimento_data))) |>
     select(numeroProcesso, movimento_codigo, data)
 
