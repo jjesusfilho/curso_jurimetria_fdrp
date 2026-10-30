@@ -56,7 +56,7 @@ Quanto tempo passa entre o ajuizamento de uma ação de fornecimento de medicame
 ## Dados e método
 
 - **Fonte:** API pública do DataJud (CNJ), índices de primeiro grau dos 27 tribunais de justiça estaduais, coletados com o pacote `datajud`.
-- **Recorte:** assunto 12495 da TPU (fornecimento de medicamento não padronizado), classe procedimento comum cível (código 7), ajuizamento a partir de 01/01/2022. Ficaram `r num(n_total)` processos de `r n_tribunais` tribunais.
+- **Recorte:** assunto 12495 da TPU (fornecimento de medicamento não padronizado), classe procedimento comum cível (código 7), ajuizamento a partir de 01/01/2022. Ficaram `r num(n_total)` processos de `r n_tribunais` tribunais. A coleta não filtrou a classe, que foi aplicada depois, exceto no TJMG e no TJRS. Nesses dois, o índice só respondeu a consultas já restritas à classe 7, divididas por município do órgão julgador.
 - **Marco:** 19/09/2024, data da publicação da ata do julgamento do Tema 1234, fixada pelo STF como parâmetro para as novas regras de competência. O período de cada processo depende da data de ajuizamento.
 - **Evento de interesse:** primeiro movimento de decisão sobre antecipação de tutela ou liminar, seja concessão, concessão parcial ou indeferimento (códigos 332, 889, 785, 339, 892 e 792).
 - **Riscos concorrentes:** desfechos que impedem a decisão de tutela no processo, ou seja, incompetência (sem decisão de tutela posterior), sentença de mérito sem tutela prévia e outros encerramentos (acordo, desistência, perda do objeto, óbito e extinção sem mérito).
@@ -74,7 +74,7 @@ contagem |>
   kable(col.names = c("Desfecho", "Antes", "Depois"), format.args = list(big.mark = "."))
 ```
 
-Antes do Tema 1234, `r valor_cif("antes", 30)` dos processos já tinham decisão de tutela em 30 dias. Depois, essa proporção caiu para `r valor_cif("depois", 30)`. Em 90 dias, os valores foram `r valor_cif("antes", 90)` e `r valor_cif("depois", 90)`. A diferença diminui com o tempo, e em um ano as curvas praticamente se encontram (@fig-tutela).
+Antes do Tema 1234, `r valor_cif("antes", 30)` dos processos já tinham decisão de tutela em 30 dias. Depois, essa proporção caiu para `r valor_cif("depois", 30)`. Em 90 dias, os valores foram `r valor_cif("antes", 90)` e `r valor_cif("depois", 90)`. A diferença diminui com o tempo: em um ano, as incidências são `r valor_cif("antes", 365)` e `r valor_cif("depois", 365)` (@fig-tutela).
 
 ![Incidência acumulada da primeira decisão de tutela, por período de ajuizamento](resultados/cif_tutela.png){#fig-tutela width=90%}
 
@@ -126,6 +126,13 @@ por_tribunal |>
          p.value = fmt_p(p.value)) |>
   kable(col.names = c("Tribunal", "Razão", "IC inf.", "IC sup.", "p"))
 ```
+
+```{r}
+n_menor <- sum(por_tribunal$conf.high < 1)
+n_maior <- sum(por_tribunal$conf.low > 1)
+```
+
+O efeito não é uniforme (@tbl-tribunal). Em `r n_menor` tribunais, a taxa de decisão de tutela caiu de forma significativa depois do marco. Em `r n_maior`, ela aumentou, e nos demais a diferença não é significativa.
 
 ## Limitações
 
