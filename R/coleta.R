@@ -48,14 +48,14 @@ coletar_fatia <- function(tribunal, consulta, prefixo = "", dir_saida,
 }
 
 coletar_tribunal <- function(tribunal, consulta = consulta_medicamentos(),
-                             dir_base = "data/brutos", log = message) {
+                             dir_base = "data/brutos", max_size = 2000, log = message) {
   dir_saida <- file.path(dir_base, tribunal)
   dir.create(dir_saida, recursive = TRUE, showWarnings = FALSE)
   feito <- file.path(dir_saida, "_completo")
   if (file.exists(feito)) return(invisible(TRUE))
 
   ok <- tryCatch({
-    coletar_fatia(tribunal, consulta, "", dir_saida, log = log)
+    coletar_fatia(tribunal, consulta, "", dir_saida, max_size = max_size, log = log)
     TRUE
   }, error = function(e) {
     log(sprintf("%s: ERRO %s (rode de novo para retomar)", tribunal, conditionMessage(e)))

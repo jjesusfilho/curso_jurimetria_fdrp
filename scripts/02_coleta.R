@@ -23,6 +23,11 @@ for (rodada in 1:3) {
   walk(pendentes, \(t) coletar_tribunal(t, log = log_coleta))
 }
 
+# Tribunais que ainda falham: fatias menores (respostas com movimentos
+# estouram o limite do gateway, ~60 s)
+pendentes <- tribunais[!file.exists(file.path("data/brutos", tribunais, "_completo"))]
+walk(pendentes, \(t) coletar_tribunal(t, max_size = 300, log = log_coleta))
+
 pendentes <- tribunais[!file.exists(file.path("data/brutos", tribunais, "_completo"))]
 log_coleta(sprintf("fim: %d tribunais pendentes %s", length(pendentes),
                    paste(pendentes, collapse = " ")))
